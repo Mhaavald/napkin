@@ -8,12 +8,14 @@ Napkin has two usage modes:
 
 | Mode | Status | Notes location | Best for |
 |---|---|---|---|
-| **Per-repository** | **Default** | `<current-repo>\.claude\napkin.md` | Guidance owned by one codebase and optionally shared with its contributors |
-| **Global user-level** | Optional addition | A configured `napkin.md` in a separate private personal repository | Lessons spanning repositories, services, tools, and operational workflows |
+| **Per-repository** | Default without configuration | `<current-repo>\.claude\napkin.md` | Guidance owned by one codebase and optionally shared with its contributors |
+| **Global user-level** | Exclusive when configured | A configured `napkin.md` in a separate private personal repository | One private scoped runbook spanning repositories, services, tools, and operational workflows |
 
 If no global configuration is present, Napkin always uses the original **per-repository mode**.
 
-The optional global mode extends the original [Aanerud/napkin](https://github.com/Aanerud/napkin) project while preserving its MIT license and default behavior.
+When global mode is configured, it replaces per-repository behavior: the agent must not read, create, or update `<current-repo>\.claude\napkin.md`.
+
+Global mode extends the original [Aanerud/napkin](https://github.com/Aanerud/napkin) project while preserving its MIT license and unconfigured default behavior.
 
 ---
 
@@ -98,9 +100,9 @@ Do not put secrets, credentials, customer content, personal data, or temporary i
 
 # Optional: global user-level Napkin
 
-Global mode is an additional possibility for users whose work spans repositories and operational systems.
+Global mode is an exclusive alternative for users whose work spans repositories and operational systems.
 
-It does **not** replace or disable the per-repository model. It is enabled explicitly through a user-level `config.json`; when enabled, the agent reads both the current repository Napkin and the global Napkin.
+It is enabled explicitly through a user-level `config.json`; when enabled, the agent reads and maintains only the configured global Napkin.
 
 ## Global-mode architecture
 
@@ -205,7 +207,7 @@ The global extension is active only when `config.json` contains:
 }
 ```
 
-Removing `config.json`, or changing `mode` to `per-repo`, disables only the global extension. The default per-repository behavior remains active.
+Removing `config.json`, or changing `mode` to `per-repo`, disables global mode and restores the default per-repository behavior.
 
 ## Verify global mode
 
@@ -218,11 +220,11 @@ Read my global Napkin and tell me which entries apply to the current repository.
 The skill should:
 
 1. Read the user-level configuration.
-2. Read the current repository's `.claude\napkin.md`.
-3. Confirm that `mode` is `global`.
-4. Resolve the current repository and Git origin.
-5. Read the configured private `napkin.md`.
-6. Apply repository guidance first, then matching global repository/origin entries, relevant workflow/tool entries, and safe global entries.
+2. Confirm that `mode` is `global`.
+3. Resolve the current repository and Git origin.
+4. Read only the configured private `napkin.md`.
+5. Apply matching repository/origin entries, relevant workflow/tool entries, and safe global entries.
+6. Leave `.claude\napkin.md` absent and untouched.
 
 ## Persist global notes
 
@@ -290,15 +292,14 @@ Use **global mode** when:
 - Notes are personal and should not be committed to product repositories.
 - The user wants one private Git history across machines.
 
-If both forms exist, apply them in this order:
+In global mode, apply guidance in this order:
 
 1. Repository instructions and canonical repository skills.
-2. The current repository's `.claude\napkin.md`.
-3. Matching `repo` or `origin` entries from the global Napkin.
-4. Matching workflow and tool entries.
-5. Global entries.
+2. Matching `repo` or `origin` entries from the global Napkin.
+3. Matching workflow and tool entries.
+4. Global entries.
 
-Repository-specific guidance always wins over broader global guidance.
+Narrower scoped guidance always wins over broader global guidance.
 
 ---
 

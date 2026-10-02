@@ -1,19 +1,19 @@
 ---
 name: napkin
-description: "Maintain the default per-repository Napkin and optionally a configured global user-level Napkin. Read and curate recurring high-value guidance before work, keep explicit actions, and avoid chronological session logs."
+description: "Maintain either a configured global user-level Napkin or the default per-repository Napkin. Read and curate recurring high-value guidance before investigations, keep explicit actions, and avoid chronological session logs."
 author: Codex
-version: 7.0.0
-date: 2026-10-01
+version: 7.1.0
+date: 2026-10-02
 ---
 
 # Napkin
 
-Napkin supports:
+Napkin supports two mutually exclusive modes:
 
-1. **Per-repository Napkin — always the default**
-2. **Global user-level Napkin — optional and additive**
+1. **Global user-level Napkin — used exclusively when configured**
+2. **Per-repository Napkin — fallback when global mode is not configured**
 
-## Detect the optional global extension
+## Select the mode
 
 Look for `config.json` beside the installed `SKILL.md`.
 
@@ -23,7 +23,7 @@ Typical locations:
 - Claude Code: `~/.claude/skills/napkin/config.json`
 - Codex: `~/.codex/skills/napkin/config.json`
 
-Enable the global extension only when the adjacent file contains:
+Use global mode only when the adjacent file contains:
 
 ```json
 {
@@ -32,11 +32,13 @@ Enable the global extension only when the adjacent file contains:
 }
 ```
 
-Without that configuration, use only per-repository behavior.
+When this configuration is present, read and maintain only `napkinPath`. Do not read, create, or update `<current-repository>\.claude\napkin.md`.
 
-## Default per-repository mode
+Without that configuration, use per-repository behavior.
 
-Always read and maintain:
+## Per-repository fallback
+
+Only when global mode is not configured, read and maintain:
 
 ```text
 <current-repository>\.claude\napkin.md
@@ -65,12 +67,9 @@ Per-repository entries use:
 
 The repository owner decides whether `.claude\napkin.md` is committed or ignored.
 
-## Optional global extension
+## Global mode
 
-When explicitly configured, read both:
-
-1. The current repository's `.claude\napkin.md`.
-2. The private file at `napkinPath`.
+When explicitly configured, read and maintain only the private file at `napkinPath`.
 
 Before applying global guidance:
 
@@ -91,7 +90,7 @@ Global entries use:
 
 Prefer the narrowest correct scope.
 
-Store repository-specific lessons in `.claude\napkin.md`. Store lessons that genuinely cross repositories, workflows, services, or tools in the global file.
+Store every qualifying lesson in the global file and use `Scope`, `Origin`, and `Applies when` to prevent repository-specific guidance from leaking into unrelated work.
 
 ## What to record
 
@@ -114,7 +113,7 @@ Do not record:
 
 ## Curation
 
-- Read and apply the selected Napkin before work.
+- Read and apply the selected Napkin before an investigation or when explicitly asked to use or update it.
 - Organize by investigation concern rather than chronology.
 - Merge duplicates and remove stale guidance.
 - Sort each category by importance.
@@ -122,12 +121,11 @@ Do not record:
 - Keep at most 15 entries per category in global mode.
 - Require an actionable `Do instead:` line.
 
-## Precedence when the global extension is enabled
+## Precedence in global mode
 
 1. Repository instructions and canonical repository skills.
-2. Per-repository `.claude\napkin.md`.
-3. Matching global `repo` or `origin` entries.
-4. Matching global workflow and tool entries.
-5. Global entries.
+2. Matching global `repo` or `origin` entries.
+3. Matching global workflow and tool entries.
+4. Global entries.
 
-Narrower repository guidance always wins.
+Narrower scoped guidance always wins.
